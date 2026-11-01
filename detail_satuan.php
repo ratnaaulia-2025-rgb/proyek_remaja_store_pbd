@@ -4,20 +4,20 @@ include 'koneksi.php';
 $id = isset($_GET['id']) ? $_GET['id'] : '';
 
 $query_satuan = mysqli_query($koneksi, "SELECT * FROM satuan WHERE idsatuan='$id'");
-$satuan = $query_satuan ? mysqli_fetch_assoc($query_satuan) : null ;
+$satuan = $query_satuan ? mysqli_fetch_assoc($query_satuan) : null;
 
 if (!$satuan) {
     header("Location: index.php?page=satuan");
     exit;
 }
 
-// eksekusi stored function hedisql
+// EKSEKUSI STORED FUNCTION DARI HEIDISQL
 $query_count = mysqli_query($koneksi, "SELECT func_total_barang_satuan('$id') AS total_item");
 $res_count   = mysqli_fetch_assoc($query_count);
 $total_item  = isset($res_count['total_item']) ? $res_count['total_item'] : 0;
 
 
-$query_detail = mysqli_query($koneksi, "SELECT b.*, v.nama_vendor, v.status_hukum 
+$query_detail = mysqli_query($koneksi, "SELECT b.*, v.nama_vendor 
     FROM barang b 
     LEFT JOIN vendor v ON b.idsatuan = v.idvendor 
     WHERE b.idsatuan='$id'");
@@ -43,18 +43,19 @@ $query_detail = mysqli_query($koneksi, "SELECT b.*, v.nama_vendor, v.status_huku
             <div>
                 <span class="text-xs font-bold text-teal-600 uppercase tracking-widest">Detail Modul Satuan</span>
                 <h2 class="text-2xl font-bold text-slate-800 mt-1">Satuan: <?= $satuan['nama_satuan']; ?></h2>
-                <p class="text-xs text-slate-500 mt-1">Daftar item produk barang dan supplier/vendor yang terdaftar dengan unit takaran ini.</p>
+                <p class="text-xs text-slate-500 mt-1">Daftar item produk barang yang menggunakan unit takaran ini.</p>
             </div>
+            <!-- ANGKA HASIL PEMANGGILAN STORED FUNCTION -->
             <div class="bg-teal-50 border border-teal-200 px-4 py-3 rounded-xl text-center">
-                <span class="text-2xl font-bold text-teal-700"><?= mysqli_num_rows($query_detail); ?></span>
-                <p class="text-xs text-teal-600 font-medium">Total Item Barang</p>
+                <span class="text-2xl font-bold text-teal-700"><?= $total_item; ?></span>
+                <p class="text-xs text-teal-600 font-medium">Total Item (Stored Function)</p>
             </div>
         </div>
 
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div class="p-4 border-b border-gray-100 bg-slate-50">
                 <h3 class="font-bold text-slate-700 text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-list-check text-teal-600"></i> Daftar Barang & Penyuplai (PT/Vendor)
+                    <i class="fa-solid fa-list-check text-teal-600"></i> Daftar Barang Terdaftar
                 </h3>
             </div>
             <div class="overflow-x-auto">
@@ -65,24 +66,23 @@ $query_detail = mysqli_query($koneksi, "SELECT b.*, v.nama_vendor, v.status_huku
                             <th class="py-3.5 px-5">Kategori / Jenis</th>
                             <th class="py-3.5 px-5">Nama Barang / Produk</th>
                             <th class="py-3.5 px-5">Harga Satuan</th>
-                            <th class="py-3.5 px-5">Supplier (PT / Vendor)</th>
+                            <th class="py-3.5 px-5">Supplier / Vendor</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 text-slate-700">
-                        <?php if (mysqli_num_rows($query_detail) > 0) : ?>
+                        <?php if ($query_detail && mysqli_num_rows($query_detail) > 0) : ?>
                             <?php while ($row = mysqli_fetch_assoc($query_detail)) : ?>
                             <tr class="hover:bg-slate-50 transition">
                                 <td class="py-3.5 px-5 font-mono text-xs text-slate-500"><?= $row['idbarang']; ?></td>
                                 <td class="py-3.5 px-5">
-                                    <span class="bg-slate-100 text-slate-700 text-xs px-2.5 py-1 rounded-md font-medium"><?= isset($row['jenis']) ? $row['jenis'] : 'Makanan'; ?></span>
+                                    <span class="bg-slate-100 text-slate-700 text-xs px-2.5 py-1 rounded-md font-medium"><?= isset($row['jenis']) ? $row['jenis'] : 'M'; ?></span>
                                 </td>
-                                <td class="py-3.5 px-5 font-bold text-slate-800"><?= $row['nama_barang']; ?></td>
+                                <td class="py-3.5 px-5 font-bold text-slate-800"><?= isset($row['nama']) ? $row['nama'] : (isset($row['nama_barang']) ? $row['nama_barang'] : '-'); ?></td>
                                 <td class="py-3.5 px-5 font-semibold text-emerald-600">Rp <?= number_format($row['harga'], 0, ',', '.'); ?></td>
                                 <td class="py-3.5 px-5">
                                     <span class="text-xs font-semibold text-slate-700 block">
                                         <?= !empty($row['nama_vendor']) ? $row['nama_vendor'] : 'PT Remaja Sentosa Supplier'; ?>
                                     </span>
-                                    <span class="text-[10px] text-slate-400 font-mono"><?= !empty($row['status_hukum']) ? $row['status_hukum'] : 'PT / Perseroan Terbatas'; ?></span>
                                 </td>
                             </tr>
                             <?php endwhile; ?>
