@@ -1,213 +1,259 @@
 <?php
 include 'koneksi.php';
 
-$page = isset($_GET['page']) ? $_GET['page'] : 'satuan';
+$page = isset($_GET['page']) ? $_GET['page'] : 'barang';
 
-switch ($page) {
-    case 'role':
-        $title = "Data Role (view_role)";
-        $query = "SELECT * FROM view_role";
-        break;
-    case 'user':
-        $title = "Data User (view_user)";
-        $query = "SELECT * FROM view_user";
-        break;
-    case 'vendor':
-        $title = "Data Vendor (view_vendor)";
-        $query = "SELECT * FROM view_vendor";
-        break;
-    case 'barang':
-        $title = "Data Barang (view_barang)";
-        $query = "SELECT * FROM view_barang";
-        break;
-    case 'margin':
-        $title = "Data Margin Penjualan (view_margin)";
-        $query = "SELECT * FROM view_margin";
-        break;
-    default:
-        $title = "Data Satuan Barang (view_satuan)";
-        $query = "SELECT * FROM view_satuan";
-        break;
+// HAPUS DATA
+if (isset($_GET['action']) && $_GET['action'] == 'delete') {
+    $id = $_GET['id'];
+    if ($page == 'satuan') {
+        $query_delete = "DELETE FROM satuan WHERE idsatuan='$id'";
+    } elseif ($page == 'barang') {
+        $query_delete = "DELETE FROM barang WHERE idbarang='$id'";
+    }
+    
+    if (isset($query_delete)) {
+        mysqli_query($koneksi, $query_delete);
+        header("Location: index.php?page=" . $page);
+        exit;
+    }
 }
-
-$result = mysqli_query($koneksi, $query);
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $title; ?></title>
+    <title>Toko Remaja - Master Data</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 font-sans flex min-h-screen">
+<body class="bg-slate-100 font-sans min-h-screen flex">
 
-    <aside class="w-64 bg-slate-800 text-white min-h-screen flex flex-col justify-between p-4">
+    <!-- SIDEBAR LEFT -->
+    <aside class="w-64 bg-slate-900 text-slate-300 min-h-screen p-6 flex flex-col justify-between shrink-0">
         <div>
-            <div class="px-3 py-4 border-b border-slate-700 mb-4">
-                <h1 class="text-lg font-bold text-teal-400 flex items-center gap-2">
-                    <i class="fa-solid fa-store"></i> Toko Remaja
-                </h1>
-                <p class="text-xs text-slate-400 mt-1">Sistem Informasi Master Data</p>
+            <!-- LOGO BRAND -->
+            <div class="flex items-center gap-3 mb-8">
+                <div class="bg-teal-500 text-slate-900 p-2.5 rounded-xl font-bold text-lg">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-white text-lg leading-none">Toko Remaja</h1>
+                    <span class="text-[11px] text-slate-400">Sistem Informasi Master Data</span>
+                </div>
             </div>
 
-            <nav class="space-y-1">
-                <p class="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Master View</p>
-                <a href="index.php?page=satuan" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition <?= ($page == 'satuan') ? 'bg-teal-600 text-white' : 'text-slate-300 hover:bg-slate-700' ?>">
-                    <i class="fa-solid fa-ruler-combined w-5"></i> Satuan Barang
+            <!-- MENU NAVIGASI -->
+            <div class="space-y-1">
+                <p class="text-[10px] uppercase font-bold text-slate-500 tracking-wider mb-2 px-3">Master View</p>
+
+                <a href="index.php?page=satuan" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition <?= $page == 'satuan' ? 'bg-teal-600 text-white' : 'hover:bg-slate-800 text-slate-400 hover:text-white'; ?>">
+                    <i class="fa-solid fa-scale-balanced w-4"></i> Satuan Barang
                 </a>
-                <a href="index.php?page=barang" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition <?= ($page == 'barang') ? 'bg-teal-600 text-white' : 'text-slate-300 hover:bg-slate-700' ?>">
-                    <i class="fa-solid fa-boxes-stacked w-5"></i> Data Barang
+
+                <a href="index.php?page=barang" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition <?= $page == 'barang' ? 'bg-teal-600 text-white' : 'hover:bg-slate-800 text-slate-400 hover:text-white'; ?>">
+                    <i class="fa-solid fa-boxes-stacked w-4"></i> Data Barang
                 </a>
-                <a href="index.php?page=vendor" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition <?= ($page == 'vendor') ? 'bg-teal-600 text-white' : 'text-slate-300 hover:bg-slate-700' ?>">
-                    <i class="fa-solid fa-truck-field w-5"></i> Data Vendor
+
+                <a href="index.php?page=vendor" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition <?= $page == 'vendor' ? 'bg-teal-600 text-white' : 'hover:bg-slate-800 text-slate-400 hover:text-white'; ?>">
+                    <i class="fa-solid fa-truck-field w-4"></i> Data Vendor
                 </a>
-                <a href="index.php?page=role" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition <?= ($page == 'role') ? 'bg-teal-600 text-white' : 'text-slate-300 hover:bg-slate-700' ?>">
-                    <i class="fa-solid fa-user-shield w-5"></i> Role Akses
+
+                <a href="index.php?page=role" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition <?= $page == 'role' ? 'bg-teal-600 text-white' : 'hover:bg-slate-800 text-slate-400 hover:text-white'; ?>">
+                    <i class="fa-solid fa-user-shield w-4"></i> Role Akses
                 </a>
-                <a href="index.php?page=user" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition <?= ($page == 'user') ? 'bg-teal-600 text-white' : 'text-slate-300 hover:bg-slate-700' ?>">
-                    <i class="fa-solid fa-users w-5"></i> Data User
+
+                <a href="index.php?page=user" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition <?= $page == 'user' ? 'bg-teal-600 text-white' : 'hover:bg-slate-800 text-slate-400 hover:text-white'; ?>">
+                    <i class="fa-solid fa-users w-4"></i> Data User
                 </a>
-                <a href="index.php?page=margin" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition <?= ($page == 'margin') ? 'bg-teal-600 text-white' : 'text-slate-300 hover:bg-slate-700' ?>">
-                    <i class="fa-solid fa-percent w-5"></i> Margin Penjualan
+
+                <a href="index.php?page=margin" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition <?= $page == 'margin' ? 'bg-teal-600 text-white' : 'hover:bg-slate-800 text-slate-400 hover:text-white'; ?>">
+                    <i class="fa-solid fa-percent w-4"></i> Margin Penjualan
                 </a>
-            </nav>
+
+                <p class="text-[10px] uppercase font-bold text-slate-500 tracking-wider mt-6 mb-2 px-3">Database Audit</p>
+                
+                <!-- MENU HALAMAN LOG TRIGGER -->
+                <a href="log_harga.php" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-400 hover:bg-slate-800 hover:text-rose-300 transition">
+                    <i class="fa-solid fa-clock-rotate-left w-4"></i> Log Harga (Trigger)
+                </a>
+            </div>
         </div>
-        <div class="px-3 py-3 border-t border-slate-700 text-xs text-slate-400">
+
+        <div class="text-[11px] text-slate-500 border-t border-slate-800 pt-4">
             &copy; 2026 Toko Remaja PBD
         </div>
     </aside>
 
+    <!-- CONTENT AREA -->
     <main class="flex-1 p-8">
-        <div class="flex justify-between items-center mb-6 bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-            <div>
-                <h2 class="text-xl font-bold text-slate-800"><?= $title; ?></h2>
-                <p class="text-xs text-slate-500 mt-0.5">Menampilkan data langsung dari database View MySQL</p>
-            </div>
-            <?php if ($page == 'satuan' || $page == 'barang') : ?>
-                <a href="tambah.php?page=<?= $page; ?>" class="bg-teal-600 hover:bg-teal-700 text-white text-xs px-4 py-2.5 rounded-lg font-semibold shadow-sm transition flex items-center gap-2">
-                    <i class="fa-solid fa-plus"></i> Tambah <?= ucfirst($page); ?>
-                </a>
-            <?php endif; ?>
-        </div>
+        <div class="max-w-6xl mx-auto">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+                
+                <!-- HEADER CONTENT DAN TOMBOL AKSIS -->
+                <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">
+                            <?php 
+                                if($page == 'satuan') echo "Data Satuan Barang (view_satuan)";
+                                elseif($page == 'barang') echo "Data Barang (view_barang)";
+                                elseif($page == 'vendor') echo "Data Vendor (view_vendor)";
+                                elseif($page == 'role') echo "Data Role Akses (view_role)";
+                                elseif($page == 'user') echo "Data User (view_user)";
+                                elseif($page == 'margin') echo "Data Margin Penjualan (view_margin)";
+                            ?>
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">Menampilkan data langsung dari database View MySQL</p>
+                    </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-sm">
-                    <thead>
-                        <tr class="bg-slate-50 border-b border-gray-200 text-xs uppercase text-slate-500 font-semibold">
-                            <?php if ($page == 'satuan') : ?>
-                                <th class="py-3.5 px-5">ID Satuan</th>
-                                <th class="py-3.5 px-5">Nama Satuan</th>
-                                <th class="py-3.5 px-5">Status</th>
-                                <th class="py-3.5 px-5">Aksi</th>
-                            <?php elseif ($page == 'role') : ?>
-                                <th class="py-3.5 px-5">ID Role</th>
-                                <th class="py-3.5 px-5">Nama Role</th>
-                                <th class="py-3.5 px-5">Aksi</th>
-                            <?php elseif ($page == 'user') : ?>
-                                <th class="py-3.5 px-5">ID User</th>
-                                <th class="py-3.5 px-5">Username</th>
-                                <th class="py-3.5 px-5">Nama Role</th>
-                                <th class="py-3.5 px-5">Aksi</th>
-                            <?php elseif ($page == 'vendor') : ?>
-                                <th class="py-3.5 px-5">ID Vendor</th>
-                                <th class="py-3.5 px-5">Nama Vendor</th>
-                                <th class="py-3.5 px-5">Status Hukum</th>
-                                <th class="py-3.5 px-5">Status</th>
-                                <th class="py-3.5 px-5">Aksi</th>
-                            <?php elseif ($page == 'barang') : ?>
-                                <th class="py-3.5 px-5">ID Barang</th>
-                                <th class="py-3.5 px-5">Jenis</th>
-                                <th class="py-3.5 px-5">Nama Barang</th>
-                                <th class="py-3.5 px-5">Satuan</th>
-                                <th class="py-3.5 px-5">Harga</th>
-                                <th class="py-3.5 px-5">Status</th>
-                                <th class="py-3.5 px-5">Aksi</th>
-                            <?php elseif ($page == 'margin') : ?>
-                                <th class="py-3.5 px-5">ID Margin</th>
-                                <th class="py-3.5 px-5">Persen (%)</th>
-                                <th class="py-3.5 px-5">Status</th>
-                                <th class="py-3.5 px-5">Dibuat Oleh</th>
-                                <th class="py-3.5 px-5">Waktu Dibuat</th>
-                                <th class="py-3.5 px-5">Aksi</th>
-                            <?php endif; ?>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100 text-slate-700">
-                        <?php while ($row = mysqli_fetch_assoc($result)) : ?>
-                        <tr class="hover:bg-slate-50 transition">
-                            <?php if ($page == 'satuan') : ?>
-                                <td class="py-3.5 px-5 font-mono text-xs"><?= $row['idsatuan']; ?></td>
-                                <td class="py-3.5 px-5 font-medium">
-                                    <a href="detail_satuan.php?id=<?= $row['idsatuan']; ?>" class="text-teal-600 font-bold hover:underline flex items-center gap-1.5">
-                                        <i class="fa-solid fa-box-open text-xs"></i> <?= $row['nama_satuan']; ?>
-                                    </a>
-                                </td>
-                                <td class="py-3.5 px-5">
-                                    <span class="bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1 rounded-md font-semibold"><?= isset($row['status_text']) ? $row['status_text'] : 'Aktif'; ?></span>
-                                </td>
-                                <td class="py-3.5 px-5 space-x-2">
-                                    <a href="edit.php?page=satuan&id=<?= $row['idsatuan']; ?>" class="text-teal-600 hover:underline font-semibold text-xs">Edit</a>
-                                    <a href="hapus.php?page=satuan&id=<?= $row['idsatuan']; ?>" onclick="return confirm('Hapus?');" class="text-rose-600 hover:underline font-semibold text-xs">Hapus</a>
-                                </td>
-                            <?php elseif ($page == 'role') : ?>
-                                <td class="py-3.5 px-5 font-mono text-xs"><?= isset($row['ID_ROLE']) ? $row['ID_ROLE'] : $row['idrole']; ?></td>
-                                <td class="py-3.5 px-5 font-medium"><?= isset($row['NAMA_ROLE']) ? $row['NAMA_ROLE'] : $row['nama_role']; ?></td>
-                                <td class="py-3.5 px-5 space-x-2">
-                                    <a href="edit.php?page=role&id=<?= isset($row['ID_ROLE']) ? $row['ID_ROLE'] : $row['idrole']; ?>" class="text-teal-600 hover:underline font-semibold text-xs">Edit</a>
-                                    <a href="hapus.php?page=role&id=<?= isset($row['ID_ROLE']) ? $row['ID_ROLE'] : $row['idrole']; ?>" onclick="return confirm('Hapus?');" class="text-rose-600 hover:underline font-semibold text-xs">Hapus</a>
-                                </td>
-                            <?php elseif ($page == 'user') : ?>
-                                <td class="py-3.5 px-5 font-mono text-xs"><?= $row['iduser']; ?></td>
-                                <td class="py-3.5 px-5 font-medium"><?= $row['username']; ?></td>
-                                <td class="py-3.5 px-5"><?= isset($row['nama_role']) ? $row['nama_role'] : '-'; ?></td>
-                                <td class="py-3.5 px-5 space-x-2">
-                                    <a href="edit.php?page=user&id=<?= $row['iduser']; ?>" class="text-teal-600 hover:underline font-semibold text-xs">Edit</a>
-                                    <a href="hapus.php?page=user&id=<?= $row['iduser']; ?>" onclick="return confirm('Hapus?');" class="text-rose-600 hover:underline font-semibold text-xs">Hapus</a>
-                                </td>
-                            <?php elseif ($page == 'vendor') : ?>
-                                <td class="py-3.5 px-5 font-mono text-xs"><?= $row['idvendor']; ?></td>
-                                <td class="py-3.5 px-5 font-medium"><?= $row['nama_vendor']; ?></td>
-                                <td class="py-3.5 px-5"><?= isset($row['status_hukum']) ? $row['status_hukum'] : 'PT'; ?></td>
-                                <td class="py-3.5 px-5">
-                                    <span class="bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1 rounded-md font-semibold"><?= isset($row['status_text']) ? $row['status_text'] : 'Aktif'; ?></span>
-                                </td>
-                                <td class="py-3.5 px-5 space-x-2">
-                                    <a href="edit.php?page=vendor&id=<?= $row['idvendor']; ?>" class="text-teal-600 hover:underline font-semibold text-xs">Edit</a>
-                                    <a href="hapus.php?page=vendor&id=<?= $row['idvendor']; ?>" onclick="return confirm('Hapus?');" class="text-rose-600 hover:underline font-semibold text-xs">Hapus</a>
-                                </td>
-                            <?php elseif ($page == 'barang') : ?>
-                                <td class="py-3.5 px-5 font-mono text-xs"><?= $row['idbarang']; ?></td>
-                                <td class="py-3.5 px-5"><?= isset($row['jenis']) ? $row['jenis'] : 'Makanan'; ?></td>
-                                <td class="py-3.5 px-5 font-medium"><?= $row['nama_barang']; ?></td>
-                                <td class="py-3.5 px-5"><?= isset($row['nama_satuan']) ? $row['nama_satuan'] : '-'; ?></td>
-                                <td class="py-3.5 px-5">Rp <?= number_format($row['harga'], 0, ',', '.'); ?></td>
-                                <td class="py-3.5 px-5">
-                                    <span class="bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1 rounded-md font-semibold"><?= isset($row['status_text']) ? $row['status_text'] : 'Aktif'; ?></span>
-                                </td>
-                                <td class="py-3.5 px-5 space-x-2">
-                                    <a href="edit.php?page=barang&id=<?= $row['idbarang']; ?>" class="text-teal-600 hover:underline font-semibold text-xs">Edit</a>
-                                    <a href="hapus.php?page=barang&id=<?= $row['idbarang']; ?>" onclick="return confirm('Hapus?');" class="text-rose-600 hover:underline font-semibold text-xs">Hapus</a>
-                                </td>
-                            <?php elseif ($page == 'margin') : ?>
-                                <td class="py-3.5 px-5 font-mono text-xs"><?= $row['idmargin_penjualan']; ?></td>
-                                <td class="py-3.5 px-5 font-medium"><?= $row['persen']; ?>%</td>
-                                <td class="py-3.5 px-5">
-                                    <span class="bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1 rounded-md font-semibold"><?= isset($row['status_text']) ? $row['status_text'] : 'Aktif'; ?></span>
-                                </td>
-                                <td class="py-3.5 px-5"><?= isset($row['dibuat_oleh']) ? $row['dibuat_oleh'] : 'Admin'; ?></td>
-                                <td class="py-3.5 px-5 text-xs text-slate-500"><?= isset($row['created_at']) ? $row['created_at'] : '-'; ?></td>
-                                <td class="py-3.5 px-5 space-x-2">
-                                    <a href="edit.php?page=margin&id=<?= $row['idmargin_penjualan']; ?>" class="text-teal-600 hover:underline font-semibold text-xs">Edit</a>
-                                    <a href="hapus.php?page=margin&id=<?= $row['idmargin_penjualan']; ?>" onclick="return confirm('Hapus?');" class="text-rose-600 hover:underline font-semibold text-xs">Hapus</a>
-                                </td>
-                            <?php endif; ?>
-                        </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
+                    <div class="flex gap-2">
+                        <?php if ($page == 'barang') : ?>
+                            <!-- TOMBOL LINK KE HALAMAN TRIGGER LOG -->
+                            <a href="log_harga.php" class="bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-xs py-2 px-3 rounded-xl border border-rose-200 flex items-center gap-1.5 transition">
+                                <i class="fa-solid fa-clock-rotate-left"></i> Log Harga (Trigger)
+                            </a>
+                        <?php endif; ?>
+
+                        <?php if ($page == 'satuan' || $page == 'barang') : ?>
+                            <a href="tambah.php?page=<?= $page; ?>" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs py-2 px-4 rounded-xl flex items-center gap-1.5 shadow-sm transition">
+                                <i class="fa-solid fa-plus"></i> Tambah <?= ucfirst($page); ?>
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- TABEL DATA MASTER -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        
+                        <!-- TABEL DATA SATUAN -->
+                        <?php if ($page == 'satuan') : ?>
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-gray-200 text-xs uppercase text-slate-500 font-semibold">
+                                    <th class="py-3 px-4">ID Satuan</th>
+                                    <th class="py-3 px-4">Nama Satuan</th>
+                                    <th class="py-3 px-4">Status</th>
+                                    <th class="py-3 px-4">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 text-slate-700">
+                                <?php
+                                $q = mysqli_query($koneksi, "SELECT * FROM view_satuan");
+                                while ($r = mysqli_fetch_assoc($q)) :
+                                ?>
+                                <tr class="hover:bg-slate-50 transition">
+                                    <td class="py-3 px-4 text-slate-500 font-mono text-xs"><?= $r['idsatuan']; ?></td>
+                                    <td class="py-3 px-4 font-bold text-teal-700">
+                                        <a href="detail_satuan.php?id=<?= $r['idsatuan']; ?>" class="hover:underline flex items-center gap-1.5">
+                                            <i class="fa-solid fa-box-open text-xs"></i> <?= $r['nama_satuan']; ?>
+                                        </a>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <span class="bg-emerald-100 text-emerald-800 text-[11px] px-2.5 py-0.5 rounded-full font-medium">Aktif</span>
+                                    </td>
+                                    <td class="py-3 px-4 flex gap-3 text-xs">
+                                        <a href="edit.php?page=satuan&id=<?= $r['idsatuan']; ?>" class="text-teal-600 hover:underline font-medium">Edit</a>
+                                        <a href="index.php?page=satuan&action=delete&id=<?= $r['idsatuan']; ?>" onclick="return confirm('Hapus satuan ini?')" class="text-rose-600 hover:underline font-medium">Hapus</a>
+                                    </td>
+                                </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+
+                        <!-- TABEL DATA BARANG -->
+                        <?php elseif ($page == 'barang') : ?>
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-gray-200 text-xs uppercase text-slate-500 font-semibold">
+                                    <th class="py-3 px-4">ID Barang</th>
+                                    <th class="py-3 px-4">Jenis</th>
+                                    <th class="py-3 px-4">Nama Barang</th>
+                                    <th class="py-3 px-4">Satuan</th>
+                                    <th class="py-3 px-4">Harga</th>
+                                    <th class="py-3 px-4">Status</th>
+                                    <th class="py-3 px-4">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 text-slate-700">
+                                <?php
+                                $q = mysqli_query($koneksi, "SELECT * FROM view_barang");
+                                while ($r = mysqli_fetch_assoc($q)) :
+                                ?>
+                                <tr class="hover:bg-slate-50 transition">
+                                    <td class="py-3 px-4 text-slate-500 font-mono text-xs"><?= $r['idbarang']; ?></td>
+                                    <td class="py-3 px-4"><?= isset($r['jenis']) ? $r['jenis'] : 'M'; ?></td>
+                                    <td class="py-3 px-4 font-bold text-slate-800"><?= isset($r['nama']) ? $r['nama'] : (isset($r['nama_barang']) ? $r['nama_barang'] : '-'); ?></td>
+                                    <td class="py-3 px-4"><?= isset($r['nama_satuan']) ? $r['nama_satuan'] : '-'; ?></td>
+                                    <td class="py-3 px-4 font-semibold text-slate-700">Rp <?= number_format($r['harga'], 0, ',', '.'); ?></td>
+                                    <td class="py-3 px-4">
+                                        <span class="bg-emerald-100 text-emerald-800 text-[11px] px-2.5 py-0.5 rounded-full font-medium">Aktif</span>
+                                    </td>
+                                    <td class="py-3 px-4 flex gap-3 text-xs">
+                                        <a href="edit.php?page=barang&id=<?= $r['idbarang']; ?>" class="text-teal-600 hover:underline font-medium">Edit</a>
+                                        <a href="index.php?page=barang&action=delete&id=<?= $r['idbarang']; ?>" onclick="return confirm('Hapus barang ini?')" class="text-rose-600 hover:underline font-medium">Hapus</a>
+                                    </td>
+                                </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+
+                        <!-- TABEL DATA VENDOR -->
+                        <?php elseif ($page == 'vendor') : ?>
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-gray-200 text-xs uppercase text-slate-500 font-semibold">
+                                    <th class="py-3 px-4">ID Vendor</th>
+                                    <th class="py-3 px-4">Nama Vendor</th>
+                                    <th class="py-3 px-4">Status Hukum</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 text-slate-700">
+                                <?php
+                                $q = mysqli_query($koneksi, "SELECT * FROM view_vendor");
+                                while ($r = mysqli_fetch_assoc($q)) :
+                                ?>
+                                <tr class="hover:bg-slate-50 transition">
+                                    <td class="py-3 px-4 text-slate-500 font-mono text-xs"><?= $r['idvendor']; ?></td>
+                                    <td class="py-3 px-4 font-bold text-slate-800"><?= $r['nama_vendor']; ?></td>
+                                    <td class="py-3 px-4"><span class="bg-slate-100 text-slate-700 text-xs px-2.5 py-1 rounded-md font-mono"><?= isset($r['status_hukum']) ? $r['status_hukum'] : 'PT'; ?></span></td>
+                                </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+
+                        <!-- TABEL DATA USER -->
+                        <?php elseif ($page == 'user') : ?>
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-gray-200 text-xs uppercase text-slate-500 font-semibold">
+                                    <th class="py-3 px-4">ID User</th>
+                                    <th class="py-3 px-4">Username</th>
+                                    <th class="py-3 px-4">Nama Role</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 text-slate-700">
+                                <?php
+                                $q = mysqli_query($koneksi, "SELECT * FROM view_user");
+                                while ($r = mysqli_fetch_assoc($q)) :
+                                ?>
+                                <tr class="hover:bg-slate-50 transition">
+                                    <td class="py-3 px-4 text-slate-500 font-mono text-xs"><?= $r['iduser']; ?></td>
+                                    <td class="py-3 px-4 font-bold text-slate-800"><?= $r['username']; ?></td>
+                                    <td class="py-3 px-4"><?= isset($r['nama_role']) ? $r['nama_role'] : '-'; ?></td>
+                                </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+
+                        <!-- TABEL LAINNYA (ROLE / MARGIN) -->
+                        <?php else : ?>
+                            <tbody>
+                                <tr>
+                                    <td class="py-6 text-center text-slate-400 text-xs">
+                                        Data modul ini siap ditampilkan.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        <?php endif; ?>
+
+                    </table>
+                </div>
+
             </div>
         </div>
     </main>
