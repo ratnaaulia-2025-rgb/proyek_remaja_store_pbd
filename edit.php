@@ -1,69 +1,52 @@
 <?php
 include 'koneksi.php';
 
-$page = isset($_GET['page']) ? $_GET['page'] : 'satuan';
+$page = isset($_GET['page']) ? $_GET['page'] : 'barang';
 $id   = isset($_GET['id']) ? $_GET['id'] : '';
 
-$query = "";
 
-if (isset($_POST['update'])) {
-    $page = $_POST['page'];
-    $id   = $_POST['id'];
+if (isset($_POST['submit'])) {
+    $page_form = $_POST['page_form'];
+    $id_form   = $_POST['id_form'];
 
-    if ($page == 'satuan') {
+    if ($page_form == 'satuan') {
         $nama_satuan   = $_POST['nama_satuan'];
         $status_satuan = $_POST['status_satuan'];
-        $query = "UPDATE satuan SET nama_satuan='$nama_satuan', status_satuan='$status_satuan' WHERE idsatuan='$id'";
-    } elseif ($page == 'role') {
-        $nama_role = $_POST['nama_role'];
-        $query = "UPDATE role SET nama_role='$nama_role' WHERE idrole='$id'";
-    } elseif ($page == 'user') {
-        $username = $_POST['username'];
-        $query = "UPDATE user SET username='$username' WHERE iduser='$id'";
-    } elseif ($page == 'vendor') {
-        $nama_vendor = $_POST['nama_vendor'];
-        $query = "UPDATE vendor SET nama_vendor='$nama_vendor' WHERE idvendor='$id'";
-    } elseif ($page == 'barang') {
+        
+        $query = "UPDATE satuan SET nama_satuan='$nama_satuan', status_satuan='$status_satuan' WHERE idsatuan='$id_form'";
+    } elseif ($page_form == 'barang') {
         $nama_barang = $_POST['nama_barang'];
-        $harga       = $_POST['harga'];
-        $idsatuan    = $_POST['idsatuan'];
         $jenis       = $_POST['jenis'];
-        $query = "UPDATE barang SET nama_barang='$nama_barang', harga='$harga', idsatuan='$idsatuan', jenis='$jenis' WHERE idbarang='$id'";
-    } elseif ($page == 'margin') {
-        $persen = $_POST['persen'];
-        $query  = "UPDATE margin_penjualan SET persen='$persen' WHERE idmargin_penjualan='$id'";
+        $idsatuan    = $_POST['idsatuan'];
+        $harga       = $_POST['harga'];
+
+        
+        $query = "UPDATE barang SET nama='$nama_barang', jenis='$jenis', idsatuan='$idsatuan', harga='$harga' WHERE idbarang='$id_form'";
     }
 
-    if (!empty($query) && mysqli_query($koneksi, $query)) {
-        header("Location: index.php?page=" . $page);
+    $result = mysqli_query($koneksi, $query);
+
+    if ($result) {
+        header("Location: index.php?page=" . $page_form);
         exit;
+    } else {
+        echo "Gagal memperbarui data: " . mysqli_error($koneksi);
     }
 }
 
-$data = [];
-if (!empty($id)) {
-    if ($page == 'satuan') {
-        $res = mysqli_query($koneksi, "SELECT * FROM satuan WHERE idsatuan='$id'");
-        $data = $res ? mysqli_fetch_assoc($res) : [];
-    } elseif ($page == 'role') {
-        $res = mysqli_query($koneksi, "SELECT * FROM role WHERE idrole='$id'");
-        $data = $res ? mysqli_fetch_assoc($res) : [];
-    } elseif ($page == 'user') {
-        $res = mysqli_query($koneksi, "SELECT * FROM user WHERE iduser='$id'");
-        $data = $res ? mysqli_fetch_assoc($res) : [];
-    } elseif ($page == 'vendor') {
-        $res = mysqli_query($koneksi, "SELECT * FROM vendor WHERE idvendor='$id'");
-        $data = $res ? mysqli_fetch_assoc($res) : [];
-    } elseif ($page == 'barang') {
-        $res = mysqli_query($koneksi, "SELECT * FROM barang WHERE idbarang='$id'");
-        $data = $res ? mysqli_fetch_assoc($res) : [];
-    } elseif ($page == 'margin') {
-        $res = mysqli_query($koneksi, "SELECT * FROM margin_penjualan WHERE idmargin_penjualan='$id'");
-        $data = $res ? mysqli_fetch_assoc($res) : [];
-    }
+
+$data_satuan = null;
+$data_barang = null;
+
+if ($page == 'satuan' && !empty($id)) {
+    $q = mysqli_query($koneksi, "SELECT * FROM satuan WHERE idsatuan='$id'");
+    $data_satuan = mysqli_fetch_assoc($q);
+} elseif ($page == 'barang' && !empty($id)) {
+    $q = mysqli_query($koneksi, "SELECT * FROM barang WHERE idbarang='$id'");
+    $data_barang = mysqli_fetch_assoc($q);
 }
 
-// Ambil list satuan & vendor untuk pilihan dropdown
+
 $list_satuan = mysqli_query($koneksi, "SELECT * FROM satuan");
 $list_vendor = mysqli_query($koneksi, "SELECT * FROM vendor");
 ?>
@@ -75,87 +58,80 @@ $list_vendor = mysqli_query($koneksi, "SELECT * FROM vendor");
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Data <?= ucfirst($page); ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
-    <div class="bg-white p-6 rounded-xl shadow-md w-full max-w-md border border-gray-200">
-        <h2 class="text-xl font-bold text-slate-800 mb-4">Edit Data <?= ucfirst($page); ?></h2>
-        
-        <form method="POST" action="edit.php" class="space-y-4">
-            <input type="hidden" name="page" value="<?= $page; ?>">
-            <input type="hidden" name="id" value="<?= $id; ?>">
 
-            <?php if ($page == 'satuan') : ?>
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 w-full max-w-md">
+        <div class="mb-5 border-b pb-3 border-gray-100">
+            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-pen-to-square text-teal-600"></i> Edit Data <?= ucfirst($page); ?>
+            </h2>
+            <p class="text-xs text-slate-500 mt-1">Perbarui informasi data master Toko Remaja</p>
+        </div>
+
+        <form method="POST" action="edit.php" class="space-y-4">
+            <input type="hidden" name="page_form" value="<?= $page; ?>">
+            <input type="hidden" name="id_form" value="<?= $id; ?>">
+
+            <?php if ($page == 'satuan' && $data_satuan) : ?>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Nama Satuan</label>
-                    <input type="text" name="nama_satuan" value="<?= isset($data['nama_satuan']) ? $data['nama_satuan'] : ''; ?>" required class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-500">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Satuan</label>
+                    <input type="text" name="nama_satuan" value="<?= $data_satuan['nama_satuan']; ?>" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-500">
                 </div>
+
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Status Satuan</label>
-                    <select name="status_satuan" class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-500">
-                        <option value="1" <?= (isset($data['status_satuan']) && $data['status_satuan'] == 1) ? 'selected' : ''; ?>>Aktif</option>
-                        <option value="0" <?= (isset($data['status_satuan']) && $data['status_satuan'] == 0) ? 'selected' : ''; ?>>Non-Aktif</option>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Status Satuan</label>
+                    <select name="status_satuan" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-500">
+                        <option value="1" <?= $data_satuan['status_satuan'] == 1 ? 'selected' : ''; ?>>Aktif</option>
+                        <option value="0" <?= $data_satuan['status_satuan'] == 0 ? 'selected' : ''; ?>>Non-Aktif</option>
                     </select>
                 </div>
-            <?php elseif ($page == 'barang') : ?>
+
+            <?php elseif ($page == 'barang' && $data_barang) : ?>
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Nama Barang</label>
-                    <input type="text" name="nama_barang" value="<?= isset($data['nama_barang']) ? $data['nama_barang'] : ''; ?>" required class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-500">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Barang</label>
+                    <input type="text" name="nama_barang" value="<?= isset($data_barang['nama']) ? $data_barang['nama'] : (isset($data_barang['nama_barang']) ? $data_barang['nama_barang'] : ''); ?>" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-500">
                 </div>
+
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Jenis / Kategori</label>
-                    <input type="text" name="jenis" value="<?= isset($data['jenis']) ? $data['jenis'] : 'M'; ?>" required class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-500">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Jenis / Kategori</label>
+                    <input type="text" name="jenis" value="<?= isset($data_barang['jenis']) ? $data_barang['jenis'] : 'M'; ?>" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-500">
                 </div>
+
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Pilih Satuan</label>
-                    <select name="idsatuan" class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-500">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Pilih Satuan Takaran</label>
+                    <select name="idsatuan" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-500">
                         <?php while ($s = mysqli_fetch_assoc($list_satuan)) : ?>
-                            <option value="<?= $s['idsatuan']; ?>" <?= (isset($data['idsatuan']) && $data['idsatuan'] == $s['idsatuan']) ? 'selected' : ''; ?>>
-                                <?= $s['nama_satuan']; ?>
-                            </option>
+                            <option value="<?= $s['idsatuan']; ?>" <?= $s['idsatuan'] == $data_barang['idsatuan'] ? 'selected' : ''; ?>><?= $s['nama_satuan']; ?></option>
                         <?php endwhile; ?>
                     </select>
                 </div>
+
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Perusahaan / Vendor Penyuplai</label>
-                    <select name="idvendor" class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-500">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Perusahaan / Vendor Penyuplai</label>
+                    <select name="idvendor" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-500">
                         <?php while ($v = mysqli_fetch_assoc($list_vendor)) : ?>
-                            <option value="<?= $v['idvendor']; ?>">
-                                <?= $v['nama_vendor']; ?>
-                            </option>
+                            <option value="<?= $v['idvendor']; ?>" <?= isset($data_barang['idvendor']) && $v['idvendor'] == $data_barang['idvendor'] ? 'selected' : ''; ?>><?= $v['nama_vendor']; ?></option>
                         <?php endwhile; ?>
                     </select>
                 </div>
+
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Harga (Rp)</label>
-                    <input type="number" name="harga" value="<?= isset($data['harga']) ? $data['harga'] : ''; ?>" required class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-500">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Harga (Rp)</label>
+                    <input type="number" name="harga" value="<?= $data_barang['harga']; ?>" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-500">
+                    <p class="text-[10px] text-rose-500 mt-1">*Jika harga diubah, Trigger MySQL akan otomatis mencatat riwayat ke tabel log[cite: 11, 12].</p>
                 </div>
-            <?php elseif ($page == 'role') : ?>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Nama Role</label>
-                    <input type="text" name="nama_role" value="<?= isset($data['nama_role']) ? $data['nama_role'] : ''; ?>" required class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-500">
-                </div>
-            <?php elseif ($page == 'user') : ?>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Username</label>
-                    <input type="text" name="username" value="<?= isset($data['username']) ? $data['username'] : ''; ?>" required class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-500">
-                </div>
-            <?php elseif ($page == 'vendor') : ?>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Nama Vendor</label>
-                    <input type="text" name="nama_vendor" value="<?= isset($data['nama_vendor']) ? $data['nama_vendor'] : ''; ?>" required class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-500">
-                </div>
-            <?php elseif ($page == 'margin') : ?>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1">Persen Margin (%)</label>
-                    <input type="number" step="0.01" name="persen" value="<?= isset($data['persen']) ? $data['persen'] : ''; ?>" required class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-500">
-                </div>
+            <?php else : ?>
+                <p class="text-xs text-rose-500">Data tidak ditemukan.</p>
             <?php endif; ?>
 
             <div class="flex justify-end gap-2 pt-3">
-                <a href="index.php?page=<?= $page; ?>" class="px-4 py-2 bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg hover:bg-gray-300">Batal</a>
-                <button type="submit" name="update" class="px-4 py-2 bg-teal-600 text-white text-xs font-semibold rounded-lg hover:bg-teal-700">Simpan</button>
+                <a href="index.php?page=<?= $page; ?>" class="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-200 transition">Batal</a>
+                <button type="submit" name="submit" class="px-4 py-2 bg-teal-600 text-white text-xs font-semibold rounded-lg hover:bg-teal-700 transition">Simpan Perubahan</button>
             </div>
         </form>
     </div>
+
 </body>
 </html>
