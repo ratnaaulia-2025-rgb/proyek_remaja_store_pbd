@@ -2,9 +2,7 @@
 include 'koneksi.php';
 
 
-$query_kartu = mysqli_query($koneksi, "SELECT k.*, b.nama FROM kartu_stok k 
-    LEFT JOIN barang b ON k.idbarang = b.idbarang 
-    ORDER BY k.idkartu DESC");
+$query_kartu = mysqli_query($koneksi, "SELECT k.*, b.nama FROM kartu_stok k LEFT JOIN barang b ON k.idbarang = b.idbarang");
 ?>
 
 <!DOCTYPE html>
