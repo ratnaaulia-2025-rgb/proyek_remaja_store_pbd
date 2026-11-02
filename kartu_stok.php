@@ -1,9 +1,10 @@
 <?php
 include 'koneksi.php';
 
+
 $query_kartu = mysqli_query($koneksi, "SELECT k.*, b.nama FROM kartu_stok k 
     LEFT JOIN barang b ON k.idbarang = b.idbarang 
-    ORDER BY k.waktu_transaksi DESC");
+    ORDER BY k.idkartu DESC");
 ?>
 
 <!DOCTYPE html>
@@ -26,7 +27,7 @@ $query_kartu = mysqli_query($koneksi, "SELECT k.*, b.nama FROM kartu_stok k
             <div>
                 <span class="text-xs font-bold text-teal-600 uppercase tracking-widest">Inventory Management</span>
                 <h2 class="text-2xl font-bold text-slate-800 mt-1">Kartu Stok Otomatis (Trigger Database)</h2>
-                <p class="text-xs text-slate-500 mt-1">Seluruh transaksi Masuk & Keluar dicatat otomatis oleh Trigger tanpa pemanggilan manual di PHP[cite: 6, 11].</p>
+                <p class="text-xs text-slate-500 mt-1">Seluruh transaksi Masuk & Keluar dicatat otomatis oleh Trigger tanpa pemanggilan manual di PHP.</p>
             </div>
             <div class="bg-teal-50 border border-teal-200 px-4 py-3 rounded-xl text-center">
                 <i class="fa-solid fa-boxes-stacked text-teal-600 text-xl mb-1"></i>
@@ -39,7 +40,7 @@ $query_kartu = mysqli_query($koneksi, "SELECT k.*, b.nama FROM kartu_stok k
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
                         <tr class="bg-slate-50 border-b border-gray-200 text-xs uppercase text-slate-500 font-semibold">
-                            <th class="py-3.5 px-5">Waktu Transaksi</th>
+                            <th class="py-3.5 px-5">ID Kartu</th>
                             <th class="py-3.5 px-5">Nama Barang</th>
                             <th class="py-3.5 px-5">Jenis Transaksi</th>
                             <th class="py-3.5 px-5 text-emerald-600">Masuk (+Stok)</th>
@@ -51,18 +52,18 @@ $query_kartu = mysqli_query($koneksi, "SELECT k.*, b.nama FROM kartu_stok k
                         <?php if ($query_kartu && mysqli_num_rows($query_kartu) > 0) : ?>
                             <?php while ($row = mysqli_fetch_assoc($query_kartu)) : ?>
                             <tr class="hover:bg-slate-50 transition">
-                                <td class="py-3.5 px-5 font-mono text-xs text-slate-500"><?= $row['waktu_transaksi']; ?></td>
+                                <td class="py-3.5 px-5 font-mono text-xs text-slate-500">#<?= isset($row['idkartu']) ? $row['idkartu'] : '-'; ?></td>
                                 <td class="py-3.5 px-5 font-bold text-slate-800"><?= !empty($row['nama']) ? $row['nama'] : 'Barang ID #'.$row['idbarang']; ?></td>
                                 <td class="py-3.5 px-5">
-                                    <?php if ($row['jenis_transaksi'] == 'PENERIMAAN') : ?>
+                                    <?php if (isset($row['jenis_transaksi']) && $row['jenis_transaksi'] == 'PENERIMAAN') : ?>
                                         <span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-0.5 rounded-full font-semibold">PENERIMAAN</span>
                                     <?php else : ?>
                                         <span class="bg-rose-100 text-rose-800 text-xs px-2.5 py-0.5 rounded-full font-semibold">PENJUALAN</span>
                                     <?php endif; ?>
                                 </td>
-                                <td class="py-3.5 px-5 font-semibold text-emerald-600">+<?= $row['masuk']; ?></td>
-                                <td class="py-3.5 px-5 font-semibold text-rose-600">-<?= $row['keluar']; ?></td>
-                                <td class="py-3.5 px-5 font-bold text-slate-900"><?= $row['sisa_stok']; ?></td>
+                                <td class="py-3.5 px-5 font-semibold text-emerald-600">+<?= isset($row['masuk']) ? $row['masuk'] : 0; ?></td>
+                                <td class="py-3.5 px-5 font-semibold text-rose-600">-<?= isset($row['keluar']) ? $row['keluar'] : 0; ?></td>
+                                <td class="py-3.5 px-5 font-bold text-slate-900"><?= isset($row['sisa_stok']) ? $row['sisa_stok'] : (isset($row['stok']) ? $row['stok'] : 0); ?></td>
                             </tr>
                             <?php endwhile; ?>
                         <?php else : ?>
