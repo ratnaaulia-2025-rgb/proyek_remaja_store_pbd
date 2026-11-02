@@ -25,7 +25,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Toko Remaja - Master Data</title>
+    <title>Toko Remaja - Master Data & Stok</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -45,7 +45,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete') {
                 </div>
             </div>
 
-            <!-- MENU NAVIGASI -->
+            <!-- MENU NAVIGASI MASTER VIEW -->
             <div class="space-y-1">
                 <p class="text-[10px] uppercase font-bold text-slate-500 tracking-wider mb-2 px-3">Master View</p>
 
@@ -73,9 +73,20 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete') {
                     <i class="fa-solid fa-percent w-4"></i> Margin Penjualan
                 </a>
 
-                <p class="text-[10px] uppercase font-bold text-slate-500 tracking-wider mt-6 mb-2 px-3">Database Audit</p>
-                
-                <!-- MENU HALAMAN LOG TRIGGER -->
+                <!-- MENU DATABASE AUDIT & TRANSAKSI (TRIGGER) -->
+                <p class="text-[10px] uppercase font-bold text-slate-500 tracking-wider mt-6 mb-2 px-3">Database Audit & Stok</p>
+
+                <!-- MENU HALAMAN KARTU STOK TRIGGER -->
+                <a href="kartu_stok.php" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-teal-400 hover:bg-slate-800 hover:text-teal-300 transition">
+                    <i class="fa-solid fa-boxes-stacked w-4"></i> Kartu Stok (Trigger)
+                </a>
+
+                <!-- MENU INPUT TRANSAKSI PENERIMAAN -->
+                <a href="penerimaan.php" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-emerald-400 hover:bg-slate-800 hover:text-emerald-300 transition">
+                    <i class="fa-solid fa-truck-ramp-box w-4"></i> Transaksi Penerimaan
+                </a>
+
+                <!-- MENU HALAMAN LOG HARGA TRIGGER -->
                 <a href="log_harga.php" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-400 hover:bg-slate-800 hover:text-rose-300 transition">
                     <i class="fa-solid fa-clock-rotate-left w-4"></i> Log Harga (Trigger)
                 </a>
@@ -110,9 +121,12 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete') {
 
                     <div class="flex gap-2">
                         <?php if ($page == 'barang') : ?>
-                            <!-- TOMBOL LINK KE HALAMAN TRIGGER LOG -->
+                            <!-- TOMBOL LINK KE KARTU STOK & LOG TRIGGER -->
+                            <a href="kartu_stok.php" class="bg-teal-50 hover:bg-teal-100 text-teal-700 font-semibold text-xs py-2 px-3 rounded-xl border border-teal-200 flex items-center gap-1.5 transition">
+                                <i class="fa-solid fa-boxes-stacked"></i> Kartu Stok
+                            </a>
                             <a href="log_harga.php" class="bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-xs py-2 px-3 rounded-xl border border-rose-200 flex items-center gap-1.5 transition">
-                                <i class="fa-solid fa-clock-rotate-left"></i> Log Harga (Trigger)
+                                <i class="fa-solid fa-clock-rotate-left"></i> Log Harga
                             </a>
                         <?php endif; ?>
 
@@ -169,6 +183,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete') {
                                     <th class="py-3 px-4">Jenis</th>
                                     <th class="py-3 px-4">Nama Barang</th>
                                     <th class="py-3 px-4">Satuan</th>
+                                    <th class="py-3 px-4">Stok</th>
                                     <th class="py-3 px-4">Harga</th>
                                     <th class="py-3 px-4">Status</th>
                                     <th class="py-3 px-4">Aksi</th>
@@ -184,6 +199,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete') {
                                     <td class="py-3 px-4"><?= isset($r['jenis']) ? $r['jenis'] : 'M'; ?></td>
                                     <td class="py-3 px-4 font-bold text-slate-800"><?= isset($r['nama']) ? $r['nama'] : (isset($r['nama_barang']) ? $r['nama_barang'] : '-'); ?></td>
                                     <td class="py-3 px-4"><?= isset($r['nama_satuan']) ? $r['nama_satuan'] : '-'; ?></td>
+                                    <td class="py-3 px-4 font-bold text-teal-600"><?= isset($r['stok']) ? $r['stok'] : 0; ?></td>
                                     <td class="py-3 px-4 font-semibold text-slate-700">Rp <?= number_format($r['harga'], 0, ',', '.'); ?></td>
                                     <td class="py-3 px-4">
                                         <span class="bg-emerald-100 text-emerald-800 text-[11px] px-2.5 py-0.5 rounded-full font-medium">Aktif</span>
